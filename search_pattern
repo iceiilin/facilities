@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# usage: ./search_pattern [file|path]
+# NOTE: if the parameter is a file name, it cannot support directory,
+# which means that user need to run the script in the same directory where the log file exists
+
+sum=0
+
+loglevel=(info debug warning error critical)
+
+file=${1}
+
+echo "${1}" | grep '.gz' > /dev/null 2>&1
+if [ "$?" -eq "0" ]; then
+    rm /tmp/${1}
+    sudo gzip -dc ${1} > /tmp/${1}
+    file=/tmp/${1}
+fi
+
+for level in ${loglevel[*]}; do
+    num=`sudo grep "\[${level}\]" ${file} | wc -l`;
+    sum=$(($sum+$num))
+    echo $level $num
+done
+
+echo "sum ${sum}"
