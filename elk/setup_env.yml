@@ -1,0 +1,15 @@
+---
+- hosts: test_machine
+  tasks:
+    - name: Check sshpass
+      shell: which sshpass
+      ignore_errors: yes
+      register: path
+
+- hosts: rackhd
+  tasks:
+    - name: Copy test file
+      copy: src=files/rsyncd.conf dest=/tmp
+      sudo: yes
+
+

@@ -1,0 +1,18 @@
+[test_machine]
+localhost   ansible_connection=local
+
+[rackhd]
+10.62.59.224:22
+
+[test_machine:vars]
+ansible_sudo_pass=onrack
+
+[rackhd:vars]
+ansible_connection=ssh
+ansible_ssh_user=onrack
+ansible_ssh_pass=onrack
+ansible_sudo_pass=onrack
+
+[elk:children]
+test_machine
+rackhd
