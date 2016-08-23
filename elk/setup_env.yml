@@ -1,15 +1,62 @@
 ---
 - hosts: test_machine
+  vars_files:
+    - vars/setup.yml
+
   tasks:
     - name: Check sshpass
       shell: which sshpass
       ignore_errors: yes
       register: path
 
-- hosts: rackhd
-  tasks:
-    - name: Copy test file
-      copy: src=files/rsyncd.conf dest=/tmp
+    - name: Install sshpass if missing
+      apt: name=sshpass state=present
+      sudo: yes
+      when: path.rc != 0
+
+    #- name: Clone scripts for ESXi host
+      #git: repo=https://github.com/pengz1/elk.git
+           #dest=/tmp/elk
+           #force=yes
+
+    - name: Clone test repo for benchmark test
+      git: repo=https://github.com/RackHD/RackHD.git
+           dest=/tmp/RackHD
+           force=yes
+      when: benchmark
+
+    - name: Modify configuration in benchmark test
+      shell: sed -i "/{{ item.key }}/c\{{ item.key }} = {{ item.value }}" /tmp/RackHD/test/config/config.ini
+      with_items:
+        '{{benchmark_config}}'
+      when: benchmark
+
+    - name: Add entries in .passwd in benchmark test
+      shell: echo "{{ item.key }}=\"{{ item.value | b64encode }}\"" >> /tmp/RackHD/test/.passwd
+      with_items:
+        '{{benchmark_localhost}}'
+      when: benchmark
+
+    - name: Install openjdk for ELK
+      apt: name=openjdk-7-jdk state=present
       sudo: yes
 
+    #- name: Install logstash
+    #- name: Run benchmark
+      #shell: virtualenv .venv;source .venv/bin/activate;pip install -r requirements.txt;python benchmark.py --start
+      #args:
+        #chdir: /tmp/RackHD/test
+        #executable: /bin/bash
 
+
+- hosts: esxi
+  tasks:
+    - name: Copy scripts from test machine
+      copy: src=/tmp/elk/esxtop_elk/parser
+            dest=/tmp
+
+- hosts: rackhd
+  tasks:
+    - name: Copy scripts from test machine
+      copy: src=/tmp/elk/esxtop_elk/parser
+            dest=/tmp

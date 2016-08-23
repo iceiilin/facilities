@@ -2,17 +2,46 @@
 localhost   ansible_connection=local
 
 [rackhd]
-10.62.59.224:22
+10.62.59.224
+
+[esxi]
+10.62.59.114
 
 [test_machine:vars]
-ansible_sudo_pass=onrack
+ansible_sudo_pass={{ localhost_sudo_pwd }}
 
 [rackhd:vars]
 ansible_connection=ssh
-ansible_ssh_user=onrack
-ansible_ssh_pass=onrack
-ansible_sudo_pass=onrack
+ansible_ssh_user={{ rackhd_ssh_user }}
+ansible_ssh_pass={{ rackhd_ssh_pwd }}
+ansible_port={{ rackhd_ssh_port }}
+ansible_sudo_pass={{ rackhd_sudo_pwd }}
+
+[esxi:vars]
+ansible_connection=ssh
+ansible_ssh_user=root
+ansible_ssh_pass=1111111
+ansible_port=22
+ansible_sudo_pass=1111111
 
 [elk:children]
 test_machine
 rackhd
+esxi
+
+[elk:vars]
+benchmark=false
+
+localhost_sudo_user=onrack
+localhost_sudo_pwd=onrack
+
+rackhd_ssh_user=onrack
+rackhd_ssh_port=22
+rackhd_ssh_pwd=onrack
+rackhd_sudo_pwd=onrack
+rackhd_api_port=8080
+
+esxi_ssh_user=root
+esxi_ssh_port=22
+esxi_ssh_pwd=1111111
+esxi_sudo_pwd=1111111

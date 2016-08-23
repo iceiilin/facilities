@@ -1,0 +1,9 @@
+benchmark_config:
+    - { key: "RACKHD_HOST ",           value: '{{ hostvars.localhost.groups.rackhd[0] }}' }
+    - { key: "RACKHD_PORT ",           value: '{{ rackhd_api_port }}' }
+    - { key: "RACKHD_SSH_USER ",       value: '{{ rackhd_ssh_user }}' }
+    - { key: "RACKHD_SSH_PASSWORD ",   value: '{{ rackhd_ssh_pwd }}' }
+    - { key: "RACKHD_SSH_PORT ",       value: '{{ rackhd_ssh_port }}' }
+benchmark_localhost:
+    - { key: "LOCAL_USER",             value: '{{ localhost_sudo_user }}' }
+    - { key: "LOCAL_PWD",              value: '{{ localhost_sudo_pwd }}' }
