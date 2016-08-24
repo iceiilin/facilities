@@ -14,10 +14,10 @@
       sudo: yes
       when: path.rc != 0
 
-    #- name: Clone scripts for ESXi host
-      #git: repo=https://github.com/pengz1/elk.git
-           #dest=/tmp/elk
-           #force=yes
+    - name: Clone scripts for ESXi host
+      git: repo=https://github.com/pengz1/elk.git
+           dest=/tmp/elk
+           force=yes
 
     - name: Clone test repo for benchmark test
       git: repo=https://github.com/RackHD/RackHD.git
@@ -28,35 +28,36 @@
     - name: Modify configuration in benchmark test
       shell: sed -i "/{{ item.key }}/c\{{ item.key }} = {{ item.value }}" /tmp/RackHD/test/config/config.ini
       with_items:
-        '{{benchmark_config}}'
+        '{{ benchmark_config }}'
       when: benchmark
 
     - name: Add entries in .passwd in benchmark test
       shell: echo "{{ item.key }}=\"{{ item.value | b64encode }}\"" >> /tmp/RackHD/test/.passwd
       with_items:
-        '{{benchmark_localhost}}'
+        '{{ benchmark_localhost }}'
       when: benchmark
 
     - name: Install openjdk for ELK
       apt: name=openjdk-7-jdk state=present
       sudo: yes
 
-    #- name: Install logstash
-    #- name: Run benchmark
-      #shell: virtualenv .venv;source .venv/bin/activate;pip install -r requirements.txt;python benchmark.py --start
-      #args:
-        #chdir: /tmp/RackHD/test
-        #executable: /bin/bash
+    - include: install_elk.yml
+      with_items:
+        '{{ elk_install_info }}'
 
+    - name: Copy logstash config file into ELK
+      copy: src=files/test.conf
+            dest=/opt/logstash
+      sudo: yes
 
 - hosts: esxi
   tasks:
     - name: Copy scripts from test machine
       copy: src=/tmp/elk/esxtop_elk/parser
-            dest=/tmp
+            dest=/esxtop/
 
-- hosts: rackhd
-  tasks:
-    - name: Copy scripts from test machine
-      copy: src=/tmp/elk/esxtop_elk/parser
-            dest=/tmp
+#- hosts: rackhd
+  #tasks:
+    #- name: Copy scripts from test machine
+      #copy: src=/tmp/elk/esxtop_elk/parser
+            #dest=/tmp

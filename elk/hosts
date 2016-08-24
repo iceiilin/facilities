@@ -19,10 +19,10 @@ ansible_sudo_pass={{ rackhd_sudo_pwd }}
 
 [esxi:vars]
 ansible_connection=ssh
-ansible_ssh_user=root
-ansible_ssh_pass=1111111
-ansible_port=22
-ansible_sudo_pass=1111111
+ansible_ssh_user={{ esxi_ssh_user }}
+ansible_ssh_pass={{ esxi_ssh_pwd }}
+ansible_port={{ esxi_ssh_port }}
+ansible_sudo_pass={{ esxi_sudo_pwd }}
 
 [elk:children]
 test_machine

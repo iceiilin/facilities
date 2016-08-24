@@ -1,0 +1,31 @@
+---
+- set_fact: pkg="{{ item }}"
+
+- name: print debug msg
+  debug: msg={{ pkg }}
+
+- name: Check package {{ pkg.name }}
+  shell: find {{ pkg.name }} -maxdepth 0
+  args:
+    chdir: /opt
+  ignore_errors: yes
+  register: ret
+
+#- name: debug
+  #debug: var=ret
+
+- name: Get {{ pkg.name }} package if there isn't one
+  get_url: url={{ pkg.url  }}
+           dest=/tmp/{{ pkg.name }}.tar.gz
+  sudo: yes
+  when: ret.rc != 0
+
+- name: Untar {{ pkg.name }} package
+  shell: tar xvf /tmp/{{ pkg.name }}.tar.gz -C /opt
+  sudo: yes
+  when: ret.rc != 0
+
+- name: Rename {{ pkg.name }} package
+  shell: mv -f /opt/{{ pkg.name }}* /opt/{{ pkg.name }}
+  sudo: yes
+  when: ret.rc != 0
