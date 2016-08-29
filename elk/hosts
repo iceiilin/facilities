@@ -4,7 +4,7 @@ localhost   ansible_connection=local
 [rackhd]
 10.62.59.224
 
-[esxi]
+[esxi_server]
 10.62.59.114
 
 [test_machine:vars]
@@ -17,7 +17,7 @@ ansible_ssh_pass={{ rackhd_ssh_pwd }}
 ansible_port={{ rackhd_ssh_port }}
 ansible_sudo_pass={{ rackhd_sudo_pwd }}
 
-[esxi:vars]
+[esxi_server:vars]
 ansible_connection=ssh
 ansible_ssh_user={{ esxi_ssh_user }}
 ansible_ssh_pass={{ esxi_ssh_pwd }}
@@ -27,10 +27,12 @@ ansible_sudo_pass={{ esxi_sudo_pwd }}
 [elk:children]
 test_machine
 rackhd
-esxi
+esxi_server
 
 [elk:vars]
-benchmark=false
+benchmark=true
+esxtop=true
+log=true
 
 localhost_sudo_user=onrack
 localhost_sudo_pwd=onrack

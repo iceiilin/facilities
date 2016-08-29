@@ -15,7 +15,7 @@ input
         #type => "static-files"
     }
     file {
-        path=> "/opt/logstash/upstart/on-*.log"
+        path=> "/tmp/logs/upstart/on-*.log"
         start_position => beginning
         ignore_older => 0
         sincedb_path => "/dev/null"
@@ -25,13 +25,13 @@ input
             what => "previous"
             auto_flush_interval => 5
         }
-        type => "static-files"
+        type => "static-logs"
     }
 }
 
 filter
 {
-    if "static-files" == [type] {
+    if "static-logs" == [type] {
         grok {
             match => {"message" => "\[%{WORD:loglevel}\] \[%{TIMESTAMP_ISO8601:date}\] \[%{NOTSPACE:process}\] \[%{NOTSPACE:module}\] \[%{NOTSPACE:runner}\] %{GREEDYDATA:event}\r\n -> %{NOTSPACE:caller}\r%{GREEDYDATA:content}"}
             add_tag => ["%{process}"]
@@ -81,12 +81,11 @@ filter
 
 output
 {
-    elasticsearch
-    {
-        index => "onrack-%{process}"
-        codec => "json"
-    }
-    stdout{
-		codec => "json"
+    if "static-logs" == [type] {
+        elasticsearch
+        {
+            index => "rackhd_log"
+            codec => "json"
+        }
     }
 }
