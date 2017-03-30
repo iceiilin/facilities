@@ -3,7 +3,6 @@ import subprocess
 import getopt
 import sys
 
-
 ret = loads(subprocess.check_output("curl http://localhost:8080/api/common/nodes | python -mjson.tool", shell=True))
 
 for node in ret:
